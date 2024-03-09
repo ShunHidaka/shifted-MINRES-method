@@ -28,7 +28,7 @@ double dznrm2_(int *n, double complex *x, int *incx);
 void zrotg_(double complex *a, double complex *b, double *c, double complex *s);
 
 // 倍精度複素数で生成されたGivens回転を適用する
-void zrot_(int *n, double complex *x, int *incx, double complex *y, int *incy);
+void zrot_(int *n, double complex *x, int *incx, double complex *y, int *incy, double *c, double complex *s);
 
 /*
 typedef struct{

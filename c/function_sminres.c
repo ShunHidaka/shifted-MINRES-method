@@ -14,16 +14,17 @@ void sminres_finalize()
   
 }
 
-void solve_sminres(const double complex *sigma, const int M,
-                   const int *A_row, const int *A_col, const double complex *A_ele,
-                   double complex *x, const double complex *rhs, const int N,
-                   int itermax, double threshold, int *status)
+int solve_sminres(const double complex *sigma, const int M,
+                  const int *A_row, const int *A_col, const double complex *A_ele,
+                  double complex *x, double complex *rhs, int N,
+                  int itermax, double threshold, int *status)
 {
-  const int N2=N*2, N3=N*3, ONE=1;
+  int N2=N*2, N3=N*3, ONE=1;
   double dTMP;         // BLAS用倍精度実数変数
   double complex zTMP; // BLAS用倍精度複素数変数
   int j, k;            // ループ用変数
   // delare variables
+  int ret;
   double complex *v;
   double alpha, beta[2];
   double complex *T;
@@ -37,41 +38,42 @@ void solve_sminres(const double complex *sigma, const int M,
   // allocate memory
   // 2次元配列から1次元配列にしたが最大値が心配 (ex. M*N3 > INT_MAX)
   v  = (double complex *)calloc(N3,   sizeof(double complex));
-  T  = (double complex *)calloc(M*4,   sizeof(double complex));
-  G1 = (double         *)calloc(M*3,   sizeof(double));
-  G2 = (double complex *)calloc(M*3,   sizeof(double complex));
+  T  = (double complex *)calloc(M*4,  sizeof(double complex));
+  G1 = (double         *)calloc(M*3,  sizeof(double));
+  G2 = (double complex *)calloc(M*3,  sizeof(double complex));
   p  = (double complex *)calloc(M*N3, sizeof(double complex));
   f  = (double complex *)calloc(M,    sizeof(double complex));
   h  = (double         *)calloc(M,    sizeof(double));
   conv_num = 0;
   is_conv = (int *)calloc(M, sizeof(int));
 
-  // Pre-Process
+  /* shifted MINRES法 */
+  // 変数の初期化
+  ret = 0;
   rhs_nrm = dznrm2_(&N, rhs, &ONE);
   dTMP = 1 / rhs_nrm;
-  zcopy(&N, rhs, &ONE, &(v[N]), &ONE);
+  zcopy_(&N, rhs, &ONE, &(v[N]), &ONE);
   zdscal_(&N, &dTMP, &(v[N]), &ONE);
   beta[0] = 0.0;
   for(k=0; k<M; k++){
     f[k] = 1.0;
     h[k] = rhs_nrm;
   }
-
-  // Main-Process
+  // メインループ
   for(j=0; j<itermax; j++){
-    // Lanczos process
+    // Lanczos過程
     sample_SpMV(A_row,A_col,A_ele, &(v[N]), &(v[N2]), N);
     zTMP = -beta[0];
     zaxpy_(&N, &zTMP, &(v[0]), &ONE, &(v[N2]), &ONE);
     alpha = creal( zdotc_(&N, &(v[N]), &ONE, &(v[N2]), &ONE) );
-    zTMP = -alpha[0];
+    zTMP = -alpha;
     zaxpy_(&N, &zTMP, &(v[N]), &ONE, &(v[N2]), &ONE);
     beta[1] = dznrm2_(&N, &(v[N2]), &ONE);
     dTMP = 1 / beta[1];
     zdscal_(&N, &dTMP, &(v[N2]), &ONE);
-    // shift systems
+    // 近似解の更新
     for(k=0; k<M; k++){
-      if(is_conv[k] == 1){
+      if(is_conv[k] != 0){
         continue;
       }
       T[k*4+0] = 0;
@@ -94,30 +96,57 @@ void solve_sminres(const double complex *sigma, const int M,
       zaxpy_(&N, &zTMP, &(p[k*N3+N2]), &ONE, &(x[k*N]), &ONE);
 
       f[k] = -conj(G2[k*3+2]) * f[k];
-      h[k] = cabs(-conj(G2[k*3+2])) * h[k];
+      h[k] =  cabs(-conj(G2[k*3+2])) * h[k];
       G1[k*3+0]=G1[k*3+1]; G1[k*3+1]=G1[k*3+2];
       G2[k*3+0]=G2[k*3+1]; G2[k*3+1]=G2[k*3+2];
 
       if(h[k] < threshold){
         conv_num++;
-        is_conv[k] = 1;
+        is_conv[k] = j;
         continue;
       }
     }
     if(conv_num == M){
+      ret = 1;
       break;
+    }
+    if(status[1] == 1){
+      if(j % status[2] == 0){
+        fprintf(stderr, "%d ", j);
+        for(k=0; k<M; k++) fprintf(stderr, "%e ", h[k]);
+        fprintf(stderr, "\n");
+      }
     }
     zcopy_(&N, &(v[N]), &ONE, &(v[0]), &ONE);
     zcopy_(&N, &(v[2*N]), &ONE, &(v[N]), &ONE);
     beta[0] = beta[1];
   }
-
-  // Post-Process
+  // 終端処理
+  if(status[0] == 1){
+    double complex *temp;
+    temp = (double complex *)calloc(N, sizeof(double complex));
+    if(ret == 1)
+      fprintf(stdout, "Converged all equation\n");
+    else
+      fprintf(stdout, "Unconverged all equation\n");
+    for(k=0; k<M; k++){
+      sample_SpMV(A_row,A_col,A_ele, &(x[k*N]), temp, N);
+      zTMP = sigma[k];
+      zaxpy_(&N, &zTMP, &(x[k*N]), &ONE, temp, &ONE);
+      zTMP = -1.0;
+      zaxpy_(&N, &zTMP, rhs, &ONE, temp, &ONE);
+      fprintf(stdout, "%d %d %lf %lf %e %e\n", k, is_conv[k],
+              creal(sigma[k]), cimag(sigma[k]),
+              h[k], dznrm2_(&N, temp, &ONE));
+    }
+    free(temp);
+  }
   free(v);
   free(T);
   free(G1); free(G2);
-  fre(p); free(f); free(h);
+  free(p); free(f); free(h);
   free(is_conv);
+  return ret;
 }
 void sample_SpMV(const int *A_row, const int *A_col, const double complex *A_ele,
                  const double complex *x, double complex *b, int N)
@@ -129,4 +158,48 @@ void sample_SpMV(const int *A_row, const int *A_col, const double complex *A_ele
       tmp += A_ele[j] * x[A_col[j]];
     b[i] = tmp;
   }
+}
+
+FILE *fopen_mtx(const char *fname, const char *mode, int *row_size, int *col_size, int *ele_size)
+{
+  FILE *fp = NULL;
+  fp = fopen(fname, mode);
+  if(fp == NULL){
+    fprintf(stderr, "Can not open file : %s\n", fname);
+    exit(1);
+  }
+  char chr;
+  while( (chr = fgetc(fp)) != EOF && (chr=='%' || chr=='#') )
+    while( (chr = fgetc(fp)) != EOF )
+      if(chr == '\n') break;
+  fseek(fp, -sizeof(char), SEEK_CUR);
+  int num, tmp1, tmp2, tmp3;
+  num = fscanf(fp, "%d %d %d", &tmp1, &tmp2, &tmp3);
+  if(num != 3){ fprintf(stderr, "fopen err\n"); exit(1);}
+  if(col_size != NULL) *row_size = tmp1;
+  if(row_size != NULL) *col_size = tmp2;
+  if(ele_size != NULL) *ele_size = tmp3;
+  return fp;
+}
+void read_csr(const char *fname, int *N, int *DATASIZE,
+              int **row_ptr, int **col_ind, double complex **element)
+{
+  FILE *fp;
+  int rsize, csize, esize;
+  fp = fopen_mtx(fname, "r", &rsize, &csize, &esize);
+  *N = rsize-1; *DATASIZE = esize;
+
+  *row_ptr = (int *)calloc(rsize, sizeof(int));
+  *col_ind = (int *)calloc(csize, sizeof(int));
+  *element = (double complex *)calloc(esize, sizeof(double complex));
+
+  int row, col, i=0;
+  double real, imag=0;
+  while( fscanf(fp, "%d %d %lf %lf", &row, &col, &real, &imag) != EOF ){
+    if(i < rsize) (*row_ptr)[i] = row;
+    if(i < csize) (*col_ind)[i] = col;
+    if(i < esize) (*element)[i] = CMPLX(real, imag);//real + imag*I;
+    i = i + 1;
+  }
+  fclose(fp);
 }
