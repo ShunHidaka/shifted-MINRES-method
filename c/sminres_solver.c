@@ -1,5 +1,5 @@
 #include "definition.h"
-#include "function_sminres.h"
+#include "sminres_solver.h"
 
 int solve_sminres(const double complex *sigma, const int M,
                   const int *A_row, const int *A_col, const double complex *A_ele,
@@ -7,8 +7,8 @@ int solve_sminres(const double complex *sigma, const int M,
                   int itermax, double threshold, int *status)
 {
   int N2=N*2, N3=N*3, ONE=1;
-  double dTMP;         // BLAS用倍精度実数変数
-  double complex zTMP; // BLAS用倍精度複素数変数
+  double dTMP;         // BLAS用倍精度実数変数(並列化は考えない)
+  double complex zTMP; // BLAS用倍精度複素数変数(並列化は考えない)
   int j, k;            // ループ用変数
   // delare variables
   int ret;
