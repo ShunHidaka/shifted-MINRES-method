@@ -103,7 +103,6 @@ void sminres_update(int j, double complex *input_v, double complex *input_Av,
     if(h[k] < threshold){
       conv_num[0]++;
       is_conv[k] = 1;
-      printf("%d %d\n", k, j);
       continue;
     }
   }
@@ -129,7 +128,9 @@ void sminres_finalize()
   free(sigma);
   free(conv_num); free(is_conv);
 }
-void sminres_getresidual()
+void sminres_getresidual(double *input_alpha, double *input_beta)
 {
-  
+  input_alpha[0] = alpha[0];
+  input_beta[0]  = beta[0];
+  input_beta[1]  = beta[1];
 }
