@@ -1,12 +1,12 @@
 #include "../src/c/sminres_solver.h"
 #include "functions.h"
-char *FNAME = "/home/stern/multi/data/PPE3594.csr";
-//char *FNAME = "../data/VCNT900h.csr";
+char *FNAME = "./../data/sample-matrix.csr";
+
 int M = 50;
 
 int main(void){
   int i;
-  /* read R-Symmetric of C-Hermitian Matrix 'A' */
+  /* read R-Symmetric or C-Hermitian Matrix 'A' */
   int N, DATASIZE;
   int *A_row, *A_col;
   double complex *A_ele;
@@ -42,5 +42,5 @@ int main(void){
 }
 
 /*
-gcc sample1.c ../c/sminres_solver.c -lm -lgfortran -lblas -llapack
+gcc sample1.c ../src/c/sminres_solver.c -lm -lgfortran -lblas -llapack
 */

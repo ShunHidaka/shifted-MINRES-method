@@ -1,12 +1,12 @@
 #include "../src/c/sminres_function.h"
 #include "functions.h"
-char *FNAME = "/home/stern/multi/data/PPE3594.csr";
-//char *FNAME = "../data/VCNT900h.csr";
+char *FNAME = "./../data/sample-matrix.csr";
+
 int M = 10;
 
 int main(void){
   int i;
-  /* read R-Symmetric of C-Hermitian Matrix 'A' */
+  /* read R-Symmetric or C-Hermitian Matrix 'A' */
   int N, DATASIZE;
   int *A_row, *A_col;
   double complex *A_ele;
