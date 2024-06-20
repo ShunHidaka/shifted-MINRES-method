@@ -1,4 +1,4 @@
-#include "../src/c/sminres_solver.h"
+#include "../src/c/scocg_solver.h"
 #include "functions.h"
 char *FNAME = "./../data/sample-matrix.csr";
 
@@ -31,7 +31,7 @@ int main(void){
 
   fprintf(stdout, "%s\n", FNAME);
   status[0]=1; status[1]=0; status[2]=20;
-  result = solve_sminres(sigma, M, A_row,A_col,A_ele, x, b, N, itermax, threshold, status);
+  result = solve_scocg(sigma, M, A_row,A_col,A_ele, x, b, N, itermax, threshold, status);
 
   if(result == 0)
     printf("fail\n");
@@ -40,7 +40,3 @@ int main(void){
   
   return 0;
 }
-
-/*
-gcc sample1.c ../src/c/sminres_solver.c -lm -lgfortran -lblas -llapack
-*/

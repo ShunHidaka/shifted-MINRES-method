@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <complex.h>
-#include <cblas.h>
 
 // x <= a*x
 void zdscal_(int *n, double *a, double complex *x, int *incx);

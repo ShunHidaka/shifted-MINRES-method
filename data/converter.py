@@ -3,11 +3,11 @@ import scipy as sp
 
 # OPEN INPUT FILE
 infile = input("file name: ")
-info   = sp.io.mminfo(infile)
-matrix = sp.io.mmread(infile).tocsr()
+info   = sp.io.mminfo(infile+".mtx")
+matrix = sp.io.mmread(infile+".mtx").tocsr()
 
 # OPEN OUTPUT FILE
-outfile = xxx + ".csr"
+outfile = infile + ".csr"
 fp = open(outfile, 'w', encoding="utf-8")
 
 # WRITE MATRIX INFORMATION
