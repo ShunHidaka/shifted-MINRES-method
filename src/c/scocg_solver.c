@@ -7,7 +7,7 @@ int solve_scocg(const double complex *sigma, const int M,
 		int itermax, double threshold, int *status)
 {
   int ONE=1;
-  double complex zTMP; // BLAS用倍精度複素数変数(並列化は考えな
+  double complex zTMP; // BLAS用倍精度複素数変数(並列化は考えていない)
   int j, k;
   // declare variables
   int ret;
@@ -27,12 +27,12 @@ int solve_scocg(const double complex *sigma, const int M,
   alpha_old = (double complex *)calloc(M,   sizeof(double complex));
   beta      = (double complex *)calloc(M,   sizeof(double complex));
   res       = (double         *)calloc(M,   sizeof(double));
-  conv_num  = 0;
   is_conv   = (int            *)calloc(M,   sizeof(int));
 
   /* shifted COCG method */
   // 変数の初期化
   ret = 0;
+  conv_num = 0;
   s = 0;
   for(k=0; k<M; k++){
     zcopy_(&N, rhs, &ONE, &(r[k*N]), &ONE);
@@ -62,7 +62,7 @@ int solve_scocg(const double complex *sigma, const int M,
     zTMP = -alpha[s];
     zaxpy_(&N, &zTMP, Ap, &ONE, &(r[s*N]), &ONE);
     res[s] = dznrm2_(&N, &(r[s*N]), &ONE);
-    if(res[s] < threshold && is_conv[s] != 0){
+    if(res[s] < threshold){
       conv_num++;
       is_conv[s] = j;
     }
@@ -104,7 +104,7 @@ int solve_scocg(const double complex *sigma, const int M,
     rr = zdotu_(&N, &(r[s*N]), &ONE, &(r[s*N]), &ONE);
     beta[s] = rr / rr_old;
     // seed switching
-    if(is_conv[s] == 1){
+    if(is_conv[s] != 0){
       t = s;
       for(k=0; k<M; k++) if(res[k] > res[t]) t = k;
       beta[t] = (pi[t*3+0]*pi[t*3+0])/(pi[t*3+1]*pi[t*3+1])*beta[s];

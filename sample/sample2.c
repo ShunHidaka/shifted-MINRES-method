@@ -2,7 +2,7 @@
 #include "functions.h"
 char *FNAME = "./../data/sample-matrix.csr";
 
-int M = 10;
+#define M 10 // こっちでは define じゃないとコンパイルエラー
 
 int main(void){
   int i;

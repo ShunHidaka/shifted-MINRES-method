@@ -2,7 +2,7 @@
 #include "functions.h"
 char *FNAME = "./../data/sample-matrix.csr";
 
-int M = 50;
+int M = 10;
 
 int main(void){
   int i;
