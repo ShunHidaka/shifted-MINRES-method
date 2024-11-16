@@ -1,21 +1,22 @@
 # shifted-MINRES-method
 
-## 概要
-標準シフト線形方程式
+## Abstract
+(standard) Shifted linear systems:
 ```math
-(A + \sigma_k I) \textbf{x} = \textbf{b},\qquad (k=1,\dots,M).
+(A + \sigma_m I) \textbf{x}^{(m)} = \textbf{b},\qquad (m=1,\dots,M),
 ```
-に対する shifted MINRES法 を提供するソルバーライブラリ．
-ただし， $A$ は実対称・複素エルミート行列とする．
+here, $A$ is real symmetric or complex Hermitian.  
+This repository is the solver library that offer shifted MINRES method.
 
 
-## 使用要件
-* Cコンパイラ
-* Fortranコンパイラ
-* BLAS
+## Requirement
+* C compiler (tested only GCC)
+* BLAS (tested Reference-BLAS and Open BLAS)
 * LAPACK
+Note: The software is developed WSL2(Ubuntu)
 
-## 使用法
+## How to use
+This softere provided two-type solver
 ### sminres_solver.c
 行列ベクトル積をソルバー側で行う．
 
