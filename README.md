@@ -13,7 +13,8 @@ This repository is the solver library that offer shifted MINRES method.
 * C compiler (tested only GCC)
 * BLAS (tested Reference-BLAS and Open BLAS)
 * LAPACK
-Note: The software is developed WSL2(Ubuntu)
+
+Note: This software is developed and tested WSL2(Ubuntu)
 
 ## How to use
 This softere provided two-type solver
