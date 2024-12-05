@@ -3,7 +3,7 @@
 ## Abstract
 (standard) Shifted linear systems:
 ```math
-(A + \sigma_m I) \textbf{x}^{(m)} = \textbf{b},\qquad (m=1,\dots,M),
+(A + \sigma^{(m)} I) \textbf{x}^{(m)} = \textbf{b},\qquad (m=1,\dots,M),
 ```
 here, $A$ is real symmetric or complex Hermitian.  
 This repository is the solver library that offer shifted MINRES method.
