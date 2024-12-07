@@ -128,9 +128,7 @@ void sminres_finalize()
   free(sigma);
   free(conv_num); free(is_conv);
 }
-void sminres_getresidual(double *input_alpha, double *input_beta)
+void sminres_getresidual(double *input_h)
 {
-  input_alpha[0] = alpha[0];
-  input_beta[0]  = beta[0];
-  input_beta[1]  = beta[1];
+  zcopy_(&M, &h, &ONE, input_h, &ONE);
 }

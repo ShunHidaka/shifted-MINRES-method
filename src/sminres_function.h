@@ -14,4 +14,4 @@ void sminres_update(int j, double complex *input_v, double complex *input_Av,
 void sminres_finalize();
 
 // Lanczos過程で得られる定数alpha, betaを返す
-void sminres_getresidual(double *alpha, double *beta);
+void sminres_getresidual(double *input_h);
