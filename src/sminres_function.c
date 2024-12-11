@@ -4,114 +4,127 @@
 /* BLAS用定数(並列化は考えない) */
 int ONE=1;
 double dTMP;
-double complex zTMP;
+double complex cTMP;
 
 /* 使用する変数 */
-int N, M;
+int j, m, N, M;
+int N2, N3;
 double threshold;
 double complex *sigma;
-double complex *v;
+double complex *q;
 double *alpha, *beta;
-double complex *T;
-double *G1; double complex *G2;
-double complex *p, *f;
-double *h, *r0nrm;
-int *conv_num, *is_conv;
+double complex **r;
+double **c;
+double complex **s;
+double complex **p;
+double complex *f;
+double *h;
+double r0nrm;
+int conv_num;
+int *is_conv;
 
-void sminres_init(const int input_N, double complex *input_rhs,
-                  const int input_M, double complex *input_sigma,
-                  double complex *input_v, double complex *x,
-                  const double input_threshold)
+void sminres_initialize(const int input_N, double complex *input_rhs,
+                        const int input_M, double complex *input_sigma,
+                        double complex *input_q,
+                        const double input_threshold)
 {
   /* 定数の代入 */
   N         = input_N;
   M         = input_M;
+  N2        = 2*N;
+  N3        = 3*N;
   threshold = input_threshold;
   /* メモリの割り当て */
-  v     = (double complex *)calloc(N*3,   sizeof(double complex));
-  alpha = (double         *)calloc(1,     sizeof(double));
-  beta  = (double         *)calloc(2,     sizeof(double));
-  T     = (double complex *)calloc(M*4,   sizeof(double complex));
-  G1    = (double         *)calloc(M*3,   sizeof(double));
-  G2    = (double complex *)calloc(M*3,   sizeof(double complex));
-  p     = (double complex *)calloc(M*N*3, sizeof(double complex));
-  f     = (double complex *)calloc(M,     sizeof(double complex));
-  h     = (double         *)calloc(M,     sizeof(double));
-  r0nrm = (double         *)calloc(1,     sizeof(double));
-  sigma = (double complex *)calloc(M,     sizeof(double complex));
-  conv_num = (int *)calloc(1, sizeof(int));
+  sigma = (double complex  *)calloc(M,     sizeof(double complex));
+  q     = (double complex  *)calloc(N*3, sizeof(double complex));
+  alpha = (double          *)calloc(1,   sizeof(double));
+  beta  = (double          *)calloc(2,   sizeof(double));
+  r     = (double complex **)calloc(M,   sizeof(double complex));
+  c     = (double         **)calloc(M,   sizeof(double));
+  s     = (double complex **)calloc(M,   sizeof(double complex));
+  p     = (double complex **)calloc(M,   sizeof(double complex));
+  f     = (double complex  *)calloc(M,   sizeof(double complex));
+  h     = (double          *)calloc(M,   sizeof(double));
+  for(m=0; m<M; m++){
+    r[m] = (double complex *)calloc(3,   sizeof(double complex));
+    c[m] = (double         *)calloc(3,   sizeof(double));
+    s[m] = (double complex *)calloc(3,   sizeof(double complex));
+    p[m] = (double complex *)calloc(N*3, sizeof(double complex));
+  }
   is_conv  = (int *)calloc(M, sizeof(int));
   /* 変数の初期化 */
-  for(int i=0; i<M*N; i++)
-    x[i] = CMPLX(0.0, 0.0);
-  r0nrm[0] = dznrm2_(&N, input_rhs, &ONE);
-  dTMP = 1 / r0nrm[0];
-  zcopy_(&N, input_rhs, &ONE, &(v[N]), &ONE);
-  zdscal_(&N, &dTMP, &(v[N]), &ONE);
+  conv_num = 0;
+  r0nrm = dznrm2_(&N, input_rhs, &ONE);
+  dTMP = 1 / r0nrm;
+  zcopy_(&N, input_rhs, &ONE, &(q[N]), &ONE);
+  zdscal_(&N, &dTMP, &(q[N]), &ONE);
   beta[0] = 0.0;
-  for(int k=0; k<M; k++){
-    f[k] = 1.0;
-    h[k] = r0nrm[0];
+  for(m=0; m<M; m++){
+    f[m] = 1.0;
+    h[m] = r0nrm;
   }
   zcopy_(&M, input_sigma, &ONE, sigma, &ONE);
   /* ユーザー用変数に格納 */
-  zcopy_(&N, &(v[N]), &ONE, input_v, &ONE);
+  zcopy_(&N, &(q[N]), &ONE, input_q, &ONE);
 }
-void sminres_update(int j, double complex *input_v, double complex *input_Av,
-                    double complex *x, int *status)
+//
+// j=1; j<MAX_ITR; j++ なら j>=3, j>=2
+//
+void sminres_update(int j, double complex *input_q, double complex *input_Aq,
+                    double complex **x, int *status)
 {
-  int N2=N*2, N3=N*3;
   // Lanczos過程
-  zcopy_(&N, input_Av, &ONE, &(v[2*N]), &ONE);
-  zTMP = -beta[0];
-  zaxpy_(&N, &zTMP, &(v[0]), &ONE, &(v[N2]), &ONE);
-  alpha[0] = creal( zdotc_(&N, &(v[N]), &ONE, &(v[N2]), &ONE) );
-  zTMP = -alpha[0];
-  zaxpy_(&N, &zTMP, &(v[N]), &ONE, &(v[N2]), &ONE);
-  beta[1] = dznrm2_(&N, &(v[N2]), &ONE);
-  dTMP = 1 / beta[1];
-  zdscal_(&N, &dTMP, &(v[N2]), &ONE);
+  zcopy_(&N, input_Aq, &ONE, &(q[2*N]), &ONE);
+  cTMP = -beta[0];
+  zaxpy_(&N, &cTMP, &(q[0]), &ONE, &(q[N2]), &ONE);
+  alpha[0] = creal( zdotc_(&N, &(q[N]), &ONE, &(q[N2]), &ONE) );
+  cTMP = -alpha[0];
+  zaxpy_(&N, &cTMP, &(q[N]), &ONE, &(q[N2]), &ONE);
+  beta[1] = dznrm2_(&N, &(q[N2]), &ONE);
   // 近似解の更新
-  for(int k=0; k<M; k++){
-    if(is_conv[k] != 0){
+  for(m=0; m<M; m++){
+    if(is_conv[m] != 0){
       continue;
     }
-    T[k*4+0] = 0;
-    T[k*4+1] = beta[0]; T[k*4+2] = alpha[0] + sigma[k]; T[k*4+3] = beta[1];
-    if(j >= 2){ zrot_(&ONE, &(T[k*4+0]), &ONE, &(T[k*4+1]), &ONE, &(G1[k*3+0]), &(G2[k*3+0]));}
-    if(j >= 1){ zrot_(&ONE, &(T[k*4+1]), &ONE, &(T[k*4+2]), &ONE, &(G1[k*3+1]), &(G2[k*3+1]));}
-    zrotg_( &(T[k*4+2]), &(T[k*4+3]), &(G1[k*3+2]), &(G2[k*3+2]) );
+    r[m][0]=0; r[m][1]=beta[0]; r[m][2]=alpha[0]+sigma[m];
+    if(j >= 3){ zrot_(&ONE, &(r[m][0]), &ONE, &(r[m][1]), &ONE, &(c[m][0]), &(s[m][0]));}
+    if(j >= 2){ zrot_(&ONE, &(r[m][1]), &ONE, &(r[m][2]), &ONE, &(c[m][1]), &(s[m][1]));}
+    cTMP = beta[1];
+    zrotg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]));
 
-    zcopy_(&N, &(p[k*N3+N]) , &ONE, &(p[k*N3+0]) , &ONE);
-    zcopy_(&N, &(p[k*N3+N2]), &ONE, &(p[k*N3+N]) , &ONE);
-    zcopy_(&N, &(v[N])      , &ONE, &(p[k*N3+N2]), &ONE);
-    zTMP = -T[k*4+0];
-    zaxpy_(&N, &zTMP, &(p[k*N3+0]), &ONE, &(p[k*N3+N2]), &ONE);
-    zTMP = -T[k*4+1];
-    zaxpy_(&N, &zTMP, &(p[k*N3+N]), &ONE, &(p[k*N3+N2]), &ONE);
-    zTMP = 1 / T[k*4+2];
-    zscal_(&N, &zTMP, &(p[k*N3+N2]), &ONE);
+    zcopy_(&N, &(p[m][N]),   &ONE, &(p[m][0]),   &ONE);
+    zcopy_(&N, &(p[m][N2]), &ONE, &(p[m][N]),   &ONE);
+    zcopy_(&N, &(q[N]),      &ONE, &(p[m][N2]), &ONE);
+    cTMP = -r[m][0];
+    zaxpy_(&N, &cTMP, &(p[m][0]), &ONE, &(p[m][N2]), &ONE);
+    cTMP = -r[m][1];
+    zaxpy_(&N, &cTMP, &(p[m][N]), &ONE, &(p[m][N2]), &ONE);
+    cTMP = 1.0 / r[m][2];
+    zscal_(&N, &cTMP, &(p[m][N2]), &ONE);
+    cTMP = r0nrm*c[m][2]*f[m];
+    zaxpy_(&N, &cTMP, &(p[m][N2]), &ONE, &(x[m][0]), &ONE);
 
-    zTMP = r0nrm[0] * G1[k*3+2] * f[k];
-    zaxpy_(&N, &zTMP, &(p[k*N3+N2]), &ONE, &(x[k*N]), &ONE);
+    f[m] = -conj(s[m][2])*f[m];
+    h[m] = cabs(-conj(s[m][2]))*h[m];
+    c[m][0]=c[m][1]; c[m][1]=c[m][2];
+    s[m][0]=s[m][1]; s[m][1]=s[m][2];
 
-    f[k] = -conj(G2[k*3+2]) * f[k];
-    h[k] =  cabs(-conj(G2[k*3+2])) * h[k];
-    G1[k*3+0]=G1[k*3+1]; G1[k*3+1]=G1[k*3+2];
-    G2[k*3+0]=G2[k*3+1]; G2[k*3+1]=G2[k*3+2];
-
-    if(h[k] < threshold){
-      conv_num[0]++;
-      is_conv[k] = 1;
+    if(h[m]/r0nrm < threshold){
+      conv_num++;
+      is_conv[m] = 1;
       continue;
     }
   }
-  zcopy_(&N, &(v[N]),  &ONE, &(v[0]), &ONE);
-  zcopy_(&N, &(v[N2]), &ONE, &(v[N]), &ONE);
-  zcopy_(&N, &(v[N2]), &ONE, input_v, &ONE);
+
+  dTMP = 1 / beta[1];
+  zdscal_(&N, &dTMP, &(q[N2]), &ONE);
   beta[0] = beta[1];
+  zcopy_(&N, &(q[N]),  &ONE, &(q[0]), &ONE);
+  zcopy_(&N, &(q[N2]), &ONE, &(q[N]), &ONE);
+  zcopy_(&N, &(q[N2]), &ONE, input_q, &ONE);
+
   // 収束判定
-  if(conv_num[0] == M){
+  if(conv_num == M){
     *status = 1;
   }
   else{
@@ -120,15 +133,21 @@ void sminres_update(int j, double complex *input_v, double complex *input_Av,
 }
 void sminres_finalize()
 {
-  free(v);
-  free(alpha); free(beta);
-  free(T); free(G1); free(G2);
-  free(p); free(f); free(h);
-  free(r0nrm);
   free(sigma);
-  free(conv_num); free(is_conv);
+  free(q);
+  free(alpha); free(beta);
+  for(m=0; m<M; m++){
+    free(r[m]);
+    free(c[m]);
+    free(s[m]);
+    free(p[m]);
+  }
+  free(r); free(c); free(s);
+  free(p);
+  free(f); free(h);
+  free(is_conv);
 }
 void sminres_getresidual(double *input_h)
 {
-  zcopy_(&M, &h, &ONE, input_h, &ONE);
+  dcopy_(&M, h, &ONE, input_h, &ONE);
 }
