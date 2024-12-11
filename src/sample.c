@@ -1,4 +1,4 @@
-#include "sminres_function.h"
+#include "sminres_functions.h"
 #include "function_util.h"
 
 char *FNAME = "VCNT900h_A.csr";

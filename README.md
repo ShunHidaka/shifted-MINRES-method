@@ -18,8 +18,8 @@ Note: This software is developed and tested WSL2(Ubuntu)
 
 ## How to use
 This softere provided two-type solver
-### sminres_solver.c
-行列ベクトル積をソルバー側で行う．
-
 ### sminres_function.c
-行列ベクトル積を使用者側で行う．
+* sminres_initalize()
+* sminres_update()
+* sminres_finalize()
+* sminres_getresidual()

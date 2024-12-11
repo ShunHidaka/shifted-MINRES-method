@@ -1,5 +1,5 @@
 #include "definition.h"
-#include "sminres_function.h"
+#include "sminres_functions.h"
 
 /* BLAS用定数(並列化は考えない) */
 int ONE=1;
