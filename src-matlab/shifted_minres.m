@@ -3,7 +3,9 @@
 % First update : 2024/12/12
 % Last update  : 2024/12/17
 % Created by "ShunHidaka (https://github.com/ShunHidaka)"
-% 実数向けに作成、複素数用ではない
+% This program DOES NOT test complex Hermitian case
+% ONLY REAL SYMMETRIC at this time
+%
 % Solve shifted linear systems
 % (A + \sigma^{(m)}I_N)\vb{x}^{(m)} = \vb{b},  (m=1,\dots, M).
 % argument：
@@ -17,7 +19,7 @@
 %   "Converged iterations" itrs (M)
 %
 
-function [x, flag, rres, itrs] = shifted_MINRES(A, rhs, N, sigma, M, max_itr, threshold)
+function [x, flag, rres, itrs] = shifted_minres(A, rhs, N, sigma, M, max_itr, threshold)
     x    = zeros(N, M); % Approximate solutions
     flag = 1;           % if flag=0 then all Eqs converged
     rres = zeros(M, 1); % relative residual norm of each Eqs
@@ -36,6 +38,7 @@ function [x, flag, rres, itrs] = shifted_MINRES(A, rhs, N, sigma, M, max_itr, th
     is_conv = zeros(M, 1);  % status of each Eqs
     % Initialize variables
     r0nrm = norm(rhs);
+    beta(1) = 0;
     q(:,2) = rhs / r0nrm;
     for m = 1:1:M
         itrs(m) = N;
