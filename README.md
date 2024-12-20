@@ -8,18 +8,15 @@
 here, $A$ is real symmetric or complex Hermitian.  
 This repository is the solver library that offer shifted MINRES method.
 
-
-## Requirement
-* C compiler (tested only GCC)
-* BLAS (tested Reference-BLAS and Open BLAS)
-* LAPACK
-
-Note: This software is developed and tested WSL2(Ubuntu)
-
-## How to use
-This softere provided two-type solver
-### sminres_function.c
-* sminres_initalize()
-* sminres_update()
-* sminres_finalize()
-* sminres_getresidual()
+# Explanation
+* src-c
+  * shifted MINRES method in C implementation
+  * Please see "src-c/README.md"
+* src-matlab
+  * shifted MINRES method in MATLAB implementation
+  * Please see "src-matlab/README.md"
+* doc
+  * This will the manuals.
+  * Underconstruction
+* article
+  * Programs that used in "Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices"
