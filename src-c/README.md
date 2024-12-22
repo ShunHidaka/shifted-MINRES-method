@@ -5,21 +5,35 @@
 ```math
 (A + \sigma^{(m)} I) \textbf{x}^{(m)} = \textbf{b},\qquad (m=1,\dots,M),
 ```
-here, $A$ is real symmetric or complex Hermitian.  
+here, $A$ is **real symmetric** or **complex Hermitian**.  
 This repository is the solver library that offer shifted MINRES method.
 
 
 ## Requirement
 * C compiler (tested only GCC)
-* BLAS (tested Reference-BLAS and Open BLAS)
-* LAPACK
-
+* BLAS
+* LAPACK (tested Reference-LAPACK and Open BLAS)
 Note: This software is developed and tested WSL2(Ubuntu)
 
+If you compile and run *sample.c*, require [Matrix Market IO C routines](https://math.nist.gov/MatrixMarket/mmio-c.html).
+* mmio.c
+* mmio.h
+```bash:downloads file
+wget http://math.nist.gov/MatrixMarket/mmio/c/mmio.h
+wget http://math.nist.gov/MatrixMarket/mmio/c/mmio.c
+```
+
+
 ## How to use
-This softere provided two-type solver
-### sminres_function.c
-* sminres_initalize()
-* sminres_update()
-* sminres_finalize()
-* sminres_getresidual()
+```C:sminres_initialize
+Initialize 
+```
+```C:sminres_update
+a
+```
+```C:sminres_finalize
+c
+```
+```C:sminres_getresidual
+D
+```
