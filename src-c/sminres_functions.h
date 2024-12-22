@@ -10,7 +10,7 @@ void sminres_initialize(const int input_N, double complex *input_rhs,
 void sminres_update(int j, double complex *input_q, double complex *input_Aq,
                     double complex **x, int *status);
 
-// Finalize shifted MINRES法
+// Finalize shifted MINRES method
 void sminres_finalize();
 
 // Return residual norms

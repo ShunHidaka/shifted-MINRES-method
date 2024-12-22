@@ -7,6 +7,7 @@ void zhpmv_(char *uplo, int *n, double complex *alpha, double complex *A,
             double complex *x, int *incx, double complex *beta, double complex *y, int *incy);
 
 int main(void){
+  /* BLAS CONSTANTS */
   int BLAS_INT_P1 = 1;
   double complex BLAS_CMPLX_P1 =  1.0;
   double complex BLAS_CMPLX_0  =  0.0;
