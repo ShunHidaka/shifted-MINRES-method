@@ -19,31 +19,31 @@ void set_fname(int c, char *v[])
   if(c > 1)
     switch(atoi(v[1])){
     case 1:
-      FNAME = "./../matrix/CLIQ6912std_A.csr";
+      FNAME = "./CLIQ6912std_A.csr";
       break;
     case 2:
-      FNAME = "./../matrix/CLIQ55296std_A.csr";
+      FNAME = "./CLIQ55296std_A.csr";
       break;
     case 3:
-      FNAME = "./../matrix/NCCS430080std_A.csr";
+      FNAME = "./NCCS430080std_A.csr";
       break;
     case 4:
-      FNAME = "./../matrix/VCNT40000std_A.csr";
+      FNAME = "./VCNT40000std_A.csr";
       break;
     case 5:
-      FNAME = "./../matrix/VCNT100000std_A.csr";
+      FNAME = "./VCNT100000std_A.csr";
       break;
     case 6:
-      FNAME = "./../matrix/VCNT400000std_A.csr";
+      FNAME = "./VCNT400000std_A.csr";
       break;
     case 7:
-      FNAME = "./../matrix/VCNT1000000std_A.csr";
+      FNAME = "./VCNT1000000std_A.csr";
       break;
     case 8:
-      FNAME = "./../matrix/VCNT900h_A.csr";
+      FNAME = "./VCNT900h_A.csr";
       break;
     case 9:
-      FNAME = "./../matrix/VCNT10800h_A.csr";
+      FNAME = "./VCNT10800h_A.csr";
       break;
     default:
       fprintf(stderr, "Error: set_fname() invarid argv[1]\n");

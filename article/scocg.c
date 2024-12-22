@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   double complex *temp = (double complex *)calloc(N, sizeof(double complex));
 
   // shifted COCG method
-  s = 493;
+  s = 0;
   for(k=0; k<M; k++){
     zcopy_(&N, &(b[0]), &ONE, &(r[k][0]), &ONE);
     pi[k][0] = pi[k][1] = 1;
