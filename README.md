@@ -5,12 +5,12 @@
 ```math
 (A + \sigma^{(m)} I) \textbf{x}^{(m)} = \textbf{b},\qquad (m=1,\dots,M),
 ```
-here, $A$ is real symmetric or complex Hermitian.  
+here, $A$ is **real symmetric** or **complex Hermitian**.  
 This repository is the solver library that offer shifted MINRES method.
 
 # Directory tree
 * article
-  * Programs that used in "Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices"
+  * Programs that used in *"Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices"*
 * doc
   * This will the manuals.
   * Underconstruction
@@ -27,3 +27,5 @@ This repository is the solver library that offer shifted MINRES method.
 # TODO
 * update Manual
 * update and test matlab
+
+# Citation
