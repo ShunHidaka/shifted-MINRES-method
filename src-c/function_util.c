@@ -1,57 +1,67 @@
 #include "function_util.h"
 
-FILE *fopen_mtx(const char *fname, const char *mode, int *row_size, int *col_size, int *ele_size)
-{
-  FILE *fp = NULL;
-  fp = fopen(fname, mode);
-  if(fp == NULL){
-    fprintf(stderr, "Can not open file : %s\n", fname);
+
+void set_shifts(int *M, double complex **shifts){
+  *M = 10;
+  (*shifts) = (double complex *)calloc(*M, sizeof(double complex));
+  for(int m=0; m<*M; m++){
+    (*shifts)[m] = 0.01 * cexp(2 * M_PI * Im_I * (m + 0.5) / *M);
+  }
+}
+
+void set_rhs(const int N, double complex **rhs){
+  (*rhs) = (double complex *)calloc(N, sizeof(double complex));
+  for(int i=0; i<N; i++){
+    (*rhs)[i] = 1.0;
+  }
+}
+
+void read_mtx(const char *fname, int *n, double complex **matrix){
+  FILE *f;
+  int retcode;
+  MM_typecode matcode;
+  // Open file
+  if((f=fopen(fname, "r")) == NULL){
+    fprintf(stderr, "Error: Could not found %s\n", fname);
     exit(1);
   }
-  char chr;
-  while( (chr = fgetc(fp)) != EOF && (chr=='%' || chr=='#') )
-    while( (chr = fgetc(fp)) != EOF )
-      if(chr == '\n') break;
-  fseek(fp, -sizeof(char), SEEK_CUR);
-  int num, tmp1, tmp2, tmp3;
-  num = fscanf(fp, "%d %d %d", &tmp1, &tmp2, &tmp3);
-  if(num != 3){ fprintf(stderr, "fopen err\n"); exit(1);}
-  if(col_size != NULL) *row_size = tmp1;
-  if(row_size != NULL) *col_size = tmp2;
-  if(ele_size != NULL) *ele_size = tmp3;
-  return fp;
-}
-void read_csr(const char *fname, int *N, int *DATASIZE,
-              int **row_ptr, int **col_ind, double complex **element)
-{
-  FILE *fp;
-  int rsize, csize, esize;
-  fp = fopen_mtx(fname, "r", &rsize, &csize, &esize);
-  *N = rsize-1; *DATASIZE = esize;
-
-  *row_ptr = (int *)calloc(rsize, sizeof(int));
-  *col_ind = (int *)calloc(csize, sizeof(int));
-  *element = (double complex *)calloc(esize, sizeof(double complex));
-
-  int row, col, i=0;
-  double real, imag=0;
-  while( fscanf(fp, "%d %d %lf %lf", &row, &col, &real, &imag) != EOF ){
-    if(i < rsize) (*row_ptr)[i] = row;
-    if(i < csize) (*col_ind)[i] = col;
-    if(i < esize) (*element)[i] = CMPLX(real, imag);//real + imag*I;
-    i = i + 1;
+  // Read Matrix Market banner
+  if(mm_read_banner(f, &matcode) != 0){
+    fprintf(stderr, "Error: Could not process MM banner.\n");
+    exit(1);
   }
-  fclose(fp);
-}
+  // Read matrix elements
+  int M, N, NNZ;
+  if( mm_is_matrix(matcode) && mm_is_sparse(matcode) && (mm_is_hermitian(matcode) || mm_is_symmetric(matcode)) ){
+    if((retcode=mm_read_mtx_crd_size(f, &M, &N, &NNZ)) != 0){
+      fprintf(stderr, "Error: Could not process size\n");
+      exit(1);
+    }
+    *n = N;
+    (*matrix) = (double complex *)calloc(N*(N+1)/2, sizeof(double complex));
 
-void SpMV(const int *A_row, const int *A_col, const double complex *A_ele,
-          const double complex *x, double complex *b, int N)
-{
-  double complex tmp;
-  for(int i=0; i<N; i++){
-    tmp = CMPLX(0.0, 0.0);
-    for(int j=A_row[i]; j<A_row[i+1]; j++)
-      tmp += A_ele[j] * x[A_col[j]];
-    b[i] = tmp;
+    int tmp_row, tmp_col;
+    double tmp_real, tmp_imag;
+    if(mm_is_complex(matcode)){
+      while( fscanf(f, "%d %d %lf %lf\n", &tmp_row, &tmp_col, &tmp_real, &tmp_imag) != EOF ){
+        (*matrix)[(tmp_row + tmp_col*(tmp_col-1)/2) - 1] = tmp_real + tmp_imag*Im_I;
+      }
+    }
+    else if(mm_is_real(matcode)){
+      while( fscanf(f, "%d %d %lf\n", &tmp_row, &tmp_col, &tmp_real) != EOF ){
+        (*matrix)[(tmp_row + tmp_col*(tmp_col-1)/2) - 1] = tmp_real;
+      }
+    }
+    else{
+      fprintf(stderr, "Error: %s\n", mm_typecode_to_str(matcode));
+      fprintf(stderr, "This app require \"real\" or \"complex\"");
+      exit(1);
+    }
+  }
+  else{
+    fprintf(stderr, "Error: %s\n", mm_typecode_to_str(matcode));
+    fprintf(stderr, "This app require \"matrix cordinate complex hermitian\"\n");
+    fprintf(stderr, "or\n");
+    fprintf(stderr, "This app require \"matrix cordinate real symmetric\"\n");
   }
 }

@@ -2,9 +2,17 @@
 #include <stdlib.h>
 #include <math.h>
 #include <complex.h>
+#undef I
+#define Im_I _Complex_I
+#include "mmio.h"
 
-FILE *fopen_mtx(const char *fname, const char *mode, int *row_size, int *col_size, int *ele_size);
-void read_csr(const char *fname, int *N, int *DATASIZE, int **row_ptr, int **col_ind, double complex **element);
+// Read Matrix Market format & Convert BLAS Packed Storage
+// only "matrix cordinate complex hermitian"
+// or   "matrix cordinate real symmetric"
+void read_mtx(const char *fname, int *N, double complex **matrix);
 
-void SpMV(const int *A_row, const int *A_col, const double complex *A_ele,
-          const double complex *x, double complex *b, int N);
+// Set shifts
+void set_shifts(int *M, double complex **shifts);
+
+// Set Right-Hand-Side vector
+void set_rhs(const int N, double complex **rhs);
