@@ -6,9 +6,20 @@ ifdef debug
 	CFLAGS = -lm -Wall -O0 -g3
 endif
 
-.PHONY: all init clean
+.PHONY: all run shift clean
 
-all: shift
+all: run
+
+run: shift
+	./sminres.out 1 2> stderr1_sminres.dat
+	./scocg.out   1 2> stderr1_scocg.dat
+	./sminres.out 2 2> stderr2_sminres.dat
+	./scocg.out   2 2> stderr2_scocg.dat
+	./sminres.out 3 2> stderr3_sminres.dat
+	./sbicg.out   3 2> stderr3_sbicg.dat
+	./sminres.out 4 2> stderr4_sminres.dat
+	./sbicg.out   4 2> stderr4_sbicg.dat
+	gnuplot graph1.gp
 
 shift: sminres.out scocg.out sbicg.out
 sminres.out: sminres.c function_util.c
@@ -18,9 +29,6 @@ scocg.out: scocg.c function_util.c
 sbicg.out: sbicg.c function_util.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LAFLAGS)
 
-init:
-	wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_PPE3594_20160426.tgz
-	tar -xzvf ELSES_MATRIX_PPE3594_20160426.tgz
-
 clean:
-	rm -f *.out *.dat
+	rm -f *.out
+	rm -f *.dat

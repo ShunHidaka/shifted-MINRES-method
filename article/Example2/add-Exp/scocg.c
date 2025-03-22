@@ -19,12 +19,12 @@ int main(int argc, char *argv[])
   double r0norm;
   set_rhsVector(N, &b, &r0norm);
   // prepare shifts sigma
-  int M;
+  int M=1;
   double complex *sigma;
   set_shifts(&M, &sigma);
 
   // declare variables and allocate memory
-  int s, t;
+  int s=0;
   double complex **x, **r, **p, *Ap, **pi;
   double complex *alpha, *alpha_old, *beta;
   double complex rr, rr_old;
@@ -50,7 +50,10 @@ int main(int argc, char *argv[])
   double complex *temp = (double complex *)calloc(N, sizeof(double complex));
 
   // shifted COCG method
-  s = 493;
+  if(atoi(argv[1]) == 1)
+    s = 5;
+  if(atoi(argv[1]) == 2)
+    s = 5;
   for(k=0; k<M; k++){
     zcopy_(&N, &(b[0]), &ONE, &(r[k][0]), &ONE);
     pi[k][0] = pi[k][1] = 1;
@@ -109,7 +112,7 @@ int main(int argc, char *argv[])
       pi[k][0] = pi[k][1];
       pi[k][1] = pi[k][2];
     }
-    if(res[s]/r0norm < 1e-13){
+    if(res[s]/r0norm < 1e-13 && is_conv[s] == 0){
       conv_num++;
       is_conv[s]  = j;
     }
@@ -134,28 +137,11 @@ int main(int argc, char *argv[])
     rr_old = rr;
     rr = zdotu_(&N, &(r[s][0]), &ONE, &(r[s][0]), &ONE);
     beta[s] = rr / rr_old;
-
-    // seed switching
-    if(is_conv[s] != 0){
-      t = s;
-      for(k=0; k<M; k++){
-        if(res[k] > res[t] && k != s) t = k;
-      }
-      beta[t]  = (pi[t][0]/pi[t][1])*(pi[t][0]/pi[t][1])*beta[s];
-      for(k=0; k<M; k++){
-        if(k == t) continue;
-        pi[k][0] = pi[k][0] / pi[t][0];
-        pi[k][1] = pi[k][1] / pi[t][1];
-      }
-      fprintf(stdout, "# SWITCH [%d] to [%d] in %d : %e %e\n", s, t, j, res[s], res[t]);
-      s = t;
-    }
-
   }
   end_time = time(NULL);
 
   // Output results
-  fprintf(stdout, "# shifted cocg method with seed switching\n");
+  fprintf(stdout, "# shifted cocg method (seed=%d)\n", s);
   fprintf(stdout, "# matrix=%s\n", FNAME);
   fprintf(stdout, "# iteration=%d, status=%d/%d, time=%ld\n", j, conv_num,M, end_time-start_time);
   fprintf(stdout, "# k, real(sigma[k]), imag(sigma[k]) conv_itr REAL_RES TRUE_RES\n");

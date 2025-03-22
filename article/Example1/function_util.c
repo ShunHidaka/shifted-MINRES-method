@@ -16,44 +16,18 @@ double complex cTMP = 0.0 + 0.0I;
 
 void set_fname(int c, char *v[])
 {
-  if(c > 1)
-    switch(atoi(v[1])){
-    case 1:
-      FNAME = "./../../matrix/CLIQ6912std_A.csr";
-      break;
-    case 2:
-      FNAME = "./../../matrix/CLIQ55296std_A.csr";
-      break;
-    case 8:
-      FNAME = "./../../matrix/VCNT900h_A.csr";
-      break;
-    case 9:
-      FNAME = "./../matrix/VCNT10800h_A.csr";
-      break;
-    default:
-      fprintf(stderr, "Error: set_fname() invarid argv[1]\n");
-      exit(1);
-    }
-  else{
-    fprintf(stderr, "Error: set_fname() No argv[1]\n");
-    exit(1);
-  }
+  FNAME = "./../../../matrix/PPE3594_A.csr";
+  //FNAME = "./../../../matrix/CLIQ6912std_A.csr";
 }
 
 void set_shifts(int *M, double complex **sigma)
 {
-  /*
-  *M = 10;
+  *M = 4;
   *sigma = (double complex *)calloc(*M, sizeof(double complex));
-  for(int m=1; m<=(*M); m++)
-    (*sigma)[m-1] = 0.01 * cexp( 2 * M_PI * I * (m - 0.5) / *M );
-  */
-
-  *M = 1001;
-  *sigma = (double complex *)calloc(*M, sizeof(double complex));
-  for(int m=1; m<=(*M); m++)
-    (*sigma)[m-1] = (-0.501 + 0.001*m) + 0.01I;
-
+  (*sigma)[0] = 0.0 + 0.00I;
+  (*sigma)[1] = 0.0 + 0.01I;
+  (*sigma)[2] = 0.0 + 0.10I;
+  (*sigma)[3] = 0.0 + 1.00I;
 }
 
 void set_rhsVector(int N, double complex **b, double *norm)
