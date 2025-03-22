@@ -16,7 +16,7 @@ double complex cTMP = 0.0 + 0.0I;
 
 void set_fname(int c, char *v[])
 {
-  FNAME = "./../../../../matrix/PPE3594_A.csr";
+  FNAME = "./../../MATRIX/PPE3594_A.csr";
 }
 
 void set_shifts(int *M, double complex **sigma)

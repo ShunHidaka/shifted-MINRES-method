@@ -19,16 +19,16 @@ void set_fname(int c, char *v[])
   if(c > 1)
     switch(atoi(v[1])){
     case 1:
-      FNAME = "./../../../matrix/CLIQ6912std_A.csr";
+      FNAME = "./../MATRIX/CLIQ6912std_A.csr";
       break;
     case 2:
-      FNAME = "./../../../matrix/CLIQ55296std_A.csr";
+      FNAME = "./../MATRIX/CLIQ55296std_A.csr";
       break;
     case 3:
-      FNAME = "./../../../matrix/VCNT900h_A.csr";
+      FNAME = "./../MATRIX/VCNT900h_A.csr";
       break;
     case 4:
-      FNAME = "./../../../matrix/VCNT10800h_A.csr";
+      FNAME = "./../MATRIX/VCNT10800h_A.csr";
       break;
     default:
       fprintf(stderr, "Error: set_fname() invarid argv[1]\n");

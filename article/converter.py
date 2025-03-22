@@ -4,19 +4,17 @@ import scipy as sp
 
 # OPEN INPUT FILE
 if len(sys.argv) > 1:
-        info   = sp.io.mminfo(sys.argv[1]+".mtx")
-        matrix = sp.io.mmreal(sys.argv[1]+".mtx").tocsr()
+        infile = sys.argv[1]
 else:
         infile = input("input MATRIX file name: ")
-        info   = sp.io.mminfo(infile+".mtx")
-        matrix = sp.io.mmread(infile+".mtx").tocsr()
+info   = sp.io.mminfo(infile)
+matrix = sp.io.mmread(infile).tocsr()
 
 # OPEN OUTPUT FILE
 if len(sys.argv) > 2:
-        outfile = sys.argv[2] + ".csr"
+        outfile = sys.argv[2]
 else:
         outfile = input("output MATRIX file name: ")
-        outfile = outfile + ".csr"
 fp = open(outfile, 'w', encoding="utf-8")
 
 # WRITE MATRIX INFORMATION
