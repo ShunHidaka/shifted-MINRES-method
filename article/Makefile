@@ -2,6 +2,7 @@ SHELL = /bin/bash
 CC = gcc
 CFLAGS   = -lm -Wall -O3 -fopenmp
 LAFLAGS  = -lgfortran -lblas -llapack
+#LAFLAGS  = -lopenblas
 #LAFLAGS  = -I/opt/OpenBLAS/include/ -L/opt/OpenBLAS/lib -lopenblas
 PYTHON   = python.exe
 ifdef debug

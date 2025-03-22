@@ -78,7 +78,19 @@ int main(int argc, char *argv[])
       if(j >= 3){ zrot_(&ONE, &(r[m][0]), &ONE, &(r[m][1]), &ONE, &(c[m][0]), &(s[m][0]));}
       if(j >= 2){ zrot_(&ONE, &(r[m][1]), &ONE, &(r[m][2]), &ONE, &(c[m][1]), &(s[m][1]));}
       cTMP = beta[1];
-      zrotg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]));
+
+      /*
+        https://github.com/OpenMathLib/OpenBLAS/blob/develop/Changelog.txt
+        Version 0.3.25
+        fixed a potential division by zero in ?ROTG
+        see: https://github.com/OpenMathLib/OpenBLAS/issues/4909
+      */
+      //zrotg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]));
+
+      double complex tmp_zlartg = beta[1];
+      zlartg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]), &tmp_zlartg);
+      r[m][2] = tmp_zlartg;
+
       zcopy_(&N, &(p[m][N]),   &ONE, &(p[m][0]),   &ONE);
       zcopy_(&N, &(p[m][2*N]), &ONE, &(p[m][N]),   &ONE);
       zcopy_(&N, &(q[N]),      &ONE, &(p[m][2*N]), &ONE);
@@ -107,12 +119,12 @@ int main(int argc, char *argv[])
     /*
     if(j % 5 == 1){
       fprintf(stderr, "%d", j);
-      for(m=0; m<M/2; m++){
-	SpMV(A_row,A_col,A_ele, &(x[m][0]), res, N);
-	cTMP = sigma[m];
-	zaxpy_(&N, &cTMP, &(x[m][0]), &ONE, res, &ONE);
-	cTMP = -1.0;
-	zaxpy_(&N, &cTMP, b, &ONE, res, &ONE);
+      for(m=0; m<M; m++){
+        SpMV(A_row,A_col,A_ele, &(x[m][0]), res, N);
+        cTMP = sigma[m];
+        zaxpy_(&N, &cTMP, &(x[m][0]), &ONE, res, &ONE);
+        cTMP = -1.0;
+        zaxpy_(&N, &cTMP, b, &ONE, res, &ONE);
         fprintf(stderr, " %e %e", h[m]/bnrm, dznrm2_(&N,res,&ONE)/bnrm);
       }
       fprintf(stderr, "\n");

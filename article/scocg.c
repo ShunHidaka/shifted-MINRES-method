@@ -119,12 +119,12 @@ int main(int argc, char *argv[])
     /*
     if(j % 5 == 1){
       fprintf(stderr, "%d", j);
-      for(k=0; k<M/2; k++){
-	SpMV(A_row,A_col,A_ele, &(x[k][0]), temp, N);
-	cTMP = sigma[k];
-	zaxpy_(&N, &cTMP, &(x[k][0]), &ONE, temp, &ONE);
-	cTMP = -1.0;
-	zaxpy_(&N, &cTMP, b, &ONE, temp, &ONE);
+      for(k=0; k<M; k++){
+        SpMV(A_row,A_col,A_ele, &(x[k][0]), temp, N);
+        cTMP = sigma[k];
+        zaxpy_(&N, &cTMP, &(x[k][0]), &ONE, temp, &ONE);
+        cTMP = -1.0;
+        zaxpy_(&N, &cTMP, b, &ONE, temp, &ONE);
         fprintf(stderr, " %e %e", res[k]/r0norm, dznrm2_(&N,temp,&ONE)/r0norm);
       }
       fprintf(stderr, "\n");

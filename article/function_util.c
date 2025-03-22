@@ -38,8 +38,7 @@ void set_fname(int c, char *v[])
       exit(1);
     }
   else{
-    char buffer[1000];
-    FNAME = buffer;
+    FNAME = (char *)calloc(1000, sizeof(char)); // not free()
     fprintf(stdout, "Please enter a MATRIX file name: ");
     if(scanf("%999s", FNAME) != 1){
       fprintf(stderr, "Error: invalid input\n");
