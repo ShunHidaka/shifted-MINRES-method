@@ -2,5 +2,4 @@
 old/
 *.out
 *.dat
-*.tex
-*.mtx
+*.csr
