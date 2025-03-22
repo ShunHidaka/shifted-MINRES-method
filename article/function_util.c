@@ -18,42 +18,64 @@ void set_fname(int c, char *v[])
 {
   if(c > 1)
     switch(atoi(v[1])){
+    case 0:
+      FNAME = "./MATRIX/PPE3594_A.csr";
+      break;
     case 1:
-      FNAME = "./../../matrix/CLIQ6912std_A.csr";
+      FNAME = "./MATRIX/CLIQ6912std_A.csr";
       break;
     case 2:
-      FNAME = "./../../matrix/CLIQ55296std_A.csr";
+      FNAME = "./MATRIX/CLIQ55296std_A.csr";
       break;
-    case 8:
-      FNAME = "./../../matrix/VCNT900h_A.csr";
+    case 3:
+      FNAME = "./MATRIX/VCNT900h_A.csr";
       break;
-    case 9:
-      FNAME = "./../matrix/VCNT10800h_A.csr";
+    case 4:
+      FNAME = "./MATRIX/VCNT10800h_A.csr";
       break;
     default:
       fprintf(stderr, "Error: set_fname() invarid argv[1]\n");
       exit(1);
     }
   else{
-    fprintf(stderr, "Error: set_fname() No argv[1]\n");
-    exit(1);
+    char buffer[1000];
+    FNAME = buffer;
+    fprintf(stdout, "Please enter a MATRIX file name: ");
+    if(scanf("%999s", FNAME) != 1){
+      fprintf(stderr, "Error: invalid input\n");
+      exit(1);
+    }
   }
 }
 
 void set_shifts(int *M, double complex **sigma)
 {
+  char shift_file[1000];
+  fprintf(stdout, "Please enter SHIFT file name: ");
+  if(scanf("%999s", shift_file) != 1){
+    fprintf(stderr, "Error: invalid input\n");
+    exit(1);
+  }
+  FILE *fp = fopen(shift_file, "r");
+  if(fp == NULL){
+    fprintf(stderr, "Can not open file : %s\n", shift_file);
+    exit(1);
+  }
+  if( fscanf(fp, "%d", M) != EOF ){
+    int m=0;
+    double real=0.0, imag=0.0;
+    *sigma = (double complex *)calloc(*M, sizeof(double complex));
+    while( fscanf(fp, "%lf %lf", &real, &imag) != EOF ){
+      (*sigma)[m] = real + imag*I;
+      m++;
+    }
+  }
   /*
   *M = 10;
   *sigma = (double complex *)calloc(*M, sizeof(double complex));
   for(int m=1; m<=(*M); m++)
-    (*sigma)[m-1] = 0.01 * cexp( 2 * M_PI * I * (m - 0.5) / *M );
+    (*sigma)[m-1] = 0.1 * cexp( 2 * M_PI * I * (m - 0.5) / *M );
   */
-
-  *M = 1001;
-  *sigma = (double complex *)calloc(*M, sizeof(double complex));
-  for(int m=1; m<=(*M); m++)
-    (*sigma)[m-1] = (-0.501 + 0.001*m) + 0.01I;
-
 }
 
 void set_rhsVector(int N, double complex **b, double *norm)

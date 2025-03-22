@@ -54,7 +54,10 @@ int main(int argc, char *argv[])
   double complex *temp = (double complex *)calloc(N, sizeof(double complex));
 
   // shifted BiCG method
-  s = 490;
+  fprintf(stdout, "Please enter seed index (default 0): ");
+  if(scanf("%d", &s) != 1 || s >= M){
+    s = 0;
+  }
   for(k=0; k<M; k++){
     zcopy_(&N, &(b[0]), &ONE, &(r1[k][0]), &ONE);
     pi[k][0] = pi[k][1] = 1;
