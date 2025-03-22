@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
         zaxpy_(&N, &cTMP, b, &ONE, temp, &ONE);
         fprintf(stderr, " %e %e", res[k]/r0norm, dznrm2_(&N,temp,&ONE)/r0norm);
       }
-      fprintf(stderr, "Error: NaN encountered in linear solver\n");
+      fprintf(stderr, "\n");
       if( isnan(res[s]) ){
-        fprintf(stderr, "\n");
+        fprintf(stderr, "Error: NaN encountered in linear solver\n");
         break;
       }
     }

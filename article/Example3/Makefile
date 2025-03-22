@@ -6,11 +6,11 @@ ifdef debug
 	CFLAGS = -lm -Wall -O0 -g3
 endif
 
-.PHONY: all run clean
+.PHONY: all run solver clean
 
 all: run
 
-run: shift
+run: solver
 	./sminres.out 1 > stdout1_sminres.dat
 	./scocg.out   1 > stdout1_scocg.dat
 	./sminres.out 2 > stdout2_sminres.dat
@@ -21,7 +21,7 @@ run: shift
 	./sbicg.out   4 > stdout4_sbicg.dat
 	gnuplot graph2.gp
 
-shift: sminres.out scocg.out sbicg.out
+solver: sminres.out scocg.out sbicg.out
 sminres.out: sminres.c function_util.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LAFLAGS)
 scocg.out: scocg.c function_util.c

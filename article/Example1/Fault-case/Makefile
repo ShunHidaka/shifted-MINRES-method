@@ -6,14 +6,14 @@ ifdef debug
 	CFLAGS = -lm -Wall -O0 -g3
 endif
 
-.PHONY: all run shift clean
+.PHONY: all run solver clean
 
 all: run
-run: shift
+run: solver
 	./sminres.out 0
 	./scocg.out   0
 
-shift: sminres.out scocg.out
+solver: sminres.out scocg.out
 sminres.out: sminres.c function_util.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LAFLAGS)
 scocg.out: scocg.c function_util.c
