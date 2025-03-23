@@ -12,8 +12,7 @@ This work implements and evaluates the shifted MINRES, shifted COCG, and shifted
 - C compiler (e.g., `gcc`)
 - BLAS and LAPACK libraries (e.g., Reference-BLAS/LAPACK, OpenBLAS, Intel MKL)
 - `make`
-- python3 with `numpy` and `scipy`
-  - 行列データを変換するのに使用
+- python3 with `numpy` and `scipy` (used for matrix data conversion)
 
 Tested with:
 - gcc (version 9.4.0) + Reference-BLAS/LAPACK (version 3.9.0-1build1)
@@ -23,20 +22,19 @@ Tested with:
 ## Directory Structure
 This repository consists of the following directories:
 - `Example1/`  
-  3.1節で使用したプログラムがある
-  詳細は そのディレクトリ内の README を
+  Contains the programs used in Section 3.1 of the paper.
+  See the `/Example1/README.md` for details.
 - `Example2/`  
-  3.2節で使用したプログラムがある
-  詳細は そのディレクトリ内の README を
+  Contains the programs used in Section 3.2 of the paper.
+  See the `/Example2/README.md` for details.
 - `Example3/`  
-  3.3節で使用したプログラムがある
-  詳細は そのディレクトリ内の README を
+  Contains the programs used in Section 3.3 of the paper.
+  See the `Example3/README.md`for details.
 - `MATRIX/`  
-  数値実験で使用する行列を保存するディレクトリ
-  makeで生成される
+  Directory for storing matrices used in numerical experiments. Created automatically by `make`.
 
 ## Compilation
-Open the `Makefile` and update the following variables according to your environment:
+Edit the `Makefile` as needed for your environment:
 ```makefile
 CC      = gcc
 LAFLAGS = -lgfortran -lblas -llapack
@@ -46,11 +44,27 @@ Then compile all programs with:
 ```bash
 make solver
 ```
+This compiles all experimental programs in each `Example*/` subdirectory.
 
 ## Matrix Data Preparation
+Run the following command to download and convert matrix data:
 ```bash
 make init
 ```
+This will download and convert the necessary matrix files into the `MATRIX/` directory.
+If you would like to convert your own matrix file in Matrix Market format to CSR format, use the following command:
+```bash
+python converter.py input_matrix.mtx output_matrix.csr
+```
+
+## Usage
+After compilation, move into each example directory and run:
+```bash
+cd Example1
+make run
+```
+This will execute the experiment under the same conditions as described in the paper.  
+Repeat for Example2/ and Example3/ as needed.
 
 ## Known Issues
 - **TRUE_RES always reported as 1.0 (sMINRES)**:
@@ -61,3 +75,17 @@ make init
     - Update OpenBLAS version 0.3.27 or later.
     - Use an alternative BLAS implementation (e.g., Reference-BLAS/LAPACK or Intel MKL).
     - Optionally, modify the source to use LAPACK's `zlartg` instead of `zrotg` for Givens rotation.
+
+## Citation
+If you use this code, please cite:
+``` bibtex
+@article{
+  author  = {Shuntaro Hidaka, Shuhei Kudo, Takeo Hoshi, Yusaku Yamamoto},
+  title   = {Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices},
+  doi     = {},
+  journal = {Computer Physics Communications},
+  volume  = {}, % to be updated
+  pages   = {}, % to be updated
+  year    = {} % to be updated
+}
+```
