@@ -1,28 +1,21 @@
 # How to use
-## BLAS/LAPACK
+
+## Requirement
+
+
+## How to use
 Change *Makefile* ```LAFLAGS``` from ```-lgfortran -lblas -llapack``` to your BLAS/LAPACK.
-
-## Prepare matrix file
-Matrix data can acquire [ELSES MATRIX LIBRARY](http://www.elses.jp/matrix/).  
-Ex.
-```bash
-wget
-tar -xzvf
-```
-In addition, our implementation use **CSR format**(Compressed Sparse Row).  
-This format is superior in terms of memory consumption and allows for high-speed matrix-vector multiplication.  
-We are providing the [Python program](https://github.com/ShunHidaka/shifted-MINRES-method/blob/main/article/converter.py) that convert "Matrix Market format" to "CSR format".
-Please run:
-```python
-$ converter.py
-file namt: (Matrix Market format file name)
-```
-
-## Compile and Run
 ```bash
 make all
 ```
 
-## Note.
-* Segmentation fault in scocg and sbicg
-  * check the seed 's' and the number of shifts 'M'
+## Known Issues
+- **TRUE_RES always reported as 1.0 (sMINRES)**:
+  - Under certain OpenBLAS library versions, the TRUE_RES value in `sminres.out` may incorrectly appear as 1.0.
+  - **Cause**: A known bug associated with the `zrotg` function in older versions of OpenBLAS.
+    - See: https://github.com/OpenMathLib/OpenBLAS/issues/4909
+  - **Solution**:
+    - Update OpenBLAS to a newer version that resolves this bug.
+    - Use an alternative BLAS library (e.g., Reference-BLAS/LAPACK or Intel MKL).
+    - 以下のように sminres.c を書き換えてください
+
