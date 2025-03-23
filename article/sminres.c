@@ -80,16 +80,21 @@ int main(int argc, char *argv[])
       cTMP = beta[1];
 
       /*
-        https://github.com/OpenMathLib/OpenBLAS/blob/develop/Changelog.txt
-        Version 0.3.25
-        fixed a potential division by zero in ?ROTG
-        see: https://github.com/OpenMathLib/OpenBLAS/issues/4909
-      */
-      //zrotg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]));
+       * In OpenBLAS versions prior to 0.3.27, there is a known bug in ?ROTG
+       * that can potentially cause a division by zero.
+       * See: https://github.com/OpenMathLib/OpenBLAS/issues/4909
+       * Changelog: https://github.com/OpenMathLib/OpenBLAS/blob/develop/Changelog.txt
+       */
+      zrotg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]));
 
-      double complex tmp_zlartg = beta[1];
-      zlartg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]), &tmp_zlartg);
-      r[m][2] = tmp_zlartg;
+      /*
+       * If you are using a version prior to 0.3.27,
+       * consider using LAPACK's Givens rotation routine instead
+       * by uncommenting the code below to avoid the issue.
+       */
+      // double complex tmp_zlartg = beta[1];
+      // zlartg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]), &tmp_zlartg);
+      // r[m][2] = tmp_zlartg;
 
       zcopy_(&N, &(p[m][N]),   &ONE, &(p[m][0]),   &ONE);
       zcopy_(&N, &(p[m][2*N]), &ONE, &(p[m][N]),   &ONE);
