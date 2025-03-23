@@ -9,36 +9,55 @@ This work implements and evaluates the shifted MINRES, shifted COCG, and shifted
 ---
 
 ## Requirements
-
 - C compiler (e.g., `gcc`)
 - BLAS and LAPACK libraries (e.g., Reference-BLAS/LAPACK, OpenBLAS, Intel MKL)
 - `make`
-- python (numpy and scipy)
+- python3 with `numpy` and `scipy`
+  - 行列データを変換するのに使用
 
 Tested with:
-- gcc (version 9.4.0), Reference-BLAS/LAPACK (version 3.9.0-1build1)
-- gcc (version 8.5.0), OpenBLAS (version 0.3.24)
-  - OpenBLASを用いる場合は注意が必要です。
+- gcc (version 9.4.0) + Reference-BLAS/LAPACK (version 3.9.0-1build1)
+- gcc (version 8.5.0) + OpenBLAS (version 0.3.24)
+  - **Caution:** when using OpenBLAS prior to version 0.3.27 (see below)
 
+## Directory Structure
+This repository consists of the following directories:
+- `Example1/`  
+  3.1節で使用したプログラムがある
+  詳細は そのディレクトリ内の README を
+- `Example2/`  
+  3.2節で使用したプログラムがある
+  詳細は そのディレクトリ内の README を
+- `Example3/`  
+  3.3節で使用したプログラムがある
+  詳細は そのディレクトリ内の README を
+- `MATRIX/`  
+  数値実験で使用する行列を保存するディレクトリ
+  makeで生成される
 
 ## Compilation
-
-Open the `Makefile` and update the following lines according to your environment:
+Open the `Makefile` and update the following variables according to your environment:
 ```makefile
-CFLAGS  = gcc
+CC      = gcc
 LAFLAGS = -lgfortran -lblas -llapack
 PYTHON  = python.exe
 ```
-Then download and convert MATRIX data, and compile all programs with:
+Then compile all programs with:
 ```bash
-make all
+make solver
+```
+
+## Matrix Data Preparation
+```bash
+make init
 ```
 
 ## Known Issues
 - **TRUE_RES always reported as 1.0 (sMINRES)**:
   - Under certain OpenBLAS library versions, the TRUE_RES value in `sminres.out` may incorrectly appear as 1.0.
-  - **Cause**: A known bug associated with the `zrotg` function in older versions of OpenBLAS.
+  - **Cause**: A known bug in the `zrotg` function in OpenBLAS versions prior to 0.3.27.
     - See: https://github.com/OpenMathLib/OpenBLAS/issues/4909
-  - **Solution**:
-    - Update OpenBLAS to a newer version that resolves this bug.
-    - Use an alternative BLAS library (e.g., Reference-BLAS/LAPACK or Intel MKL).
+  - **Workarounds**:
+    - Update OpenBLAS version 0.3.27 or later.
+    - Use an alternative BLAS implementation (e.g., Reference-BLAS/LAPACK or Intel MKL).
+    - Optionally, modify the source to use LAPACK's `zlartg` instead of `zrotg` for Givens rotation.
