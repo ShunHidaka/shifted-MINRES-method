@@ -29,4 +29,5 @@ This repository is the solver library that offer shifted MINRES method.
 * update and test matlab program
 * update README.md files
 
-# Citation
+## Citation
+If you use this code, please cite:
