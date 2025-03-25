@@ -1,18 +1,19 @@
 SHELL = /bin/bash
 CC = gcc
 CFLAGS   = -lm -Wall -O3 -fopenmp
-LAFLAGS  = -lgfortran -lblas -llapack
+#LAFLAGS  = -lgfortran -lblas -llapack
 #LAFLAGS  = -lopenblas
-#LAFLAGS  = -I/opt/OpenBLAS/include/ -L/opt/OpenBLAS/lib -lopenblas
+LAFLAGS  = -I/opt/OpenBLAS/include/ -L/opt/OpenBLAS/lib -lopenblas
 PYTHON   = python.exe
 ifdef debug
 	CFLAGS = -lm -Wall -O0 -g3
 endif
 
-.PHONY: all init solver example1 Ex1 Fau add res tim Ex3 clean allclean
+.PHONY: all init solver original example1 Ex1 Fau add res tim Ex3 clean allclean
 
 all: init solver
 
+Ori = Original
 Ex1 = Example1
 Fau = $(Ex1)/Fault-case
 Ex2 = Example2
@@ -25,14 +26,14 @@ sc = scocg.out
 sb = sbicg.out
 
 ##########
-solver: sample example1 example2 example3
+solver: original example1 example2 example3
 
-sample: $(sm) $(sc) $(sb)
-$(sm): sminres.c function_util.c
+original: $(Ori)/$(sm) $(Ori)/$(sc) $(Ori)/$(sb)
+$(Ori)/$(sm): $(Ori)/sminres.c $(Ori)/function_util.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LAFLAGS)
-$(sc): scocg.c function_util.c
+$(Ori)/$(sc): $(Ori)/scocg.c $(Ori)/function_util.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LAFLAGS)
-$(sb): sbicg.c function_util.c
+$(Ori)/$(sb): $(Ori)/sbicg.c $(Ori)/function_util.c
 	$(CC) $^ -o $@ $(CFLAGS) $(LAFLAGS)
 
 example1: Ex1 Fau
@@ -110,8 +111,8 @@ MATRIX:
 
 ##########
 clean:
-	rm -f *.out $(Ex1)/*.out $(Fau)/*.out $(add)/*.out $(res)/*.out $(tim)/*.out $(Ex3)/*.out
-	rm -f *.dat $(Ex1)/*.dat $(Fau)/*.dat $(add)/*.dat $(res)/*.dat $(tim)/*.dat $(Ex3)/*.dat
+	rm -f $(Ori)/*.out $(Ex1)/*.out $(Fau)/*.out $(add)/*.out $(res)/*.out $(tim)/*.out $(Ex3)/*.out
+	rm -f $(Ori)/*.dat $(Ex1)/*.dat $(Fau)/*.dat $(add)/*.dat $(res)/*.dat $(tim)/*.dat $(Ex3)/*.dat
 allclean: clean
 	rm -f MATRIX/*
 	rmdir MATRIX/
