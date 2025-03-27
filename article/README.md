@@ -4,7 +4,7 @@ This repository contains the source codes and data used in the paper:
 **Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices**  
 **Authors:** Shuntaro Hidaka, Shuhei Kudo, Takeo Hoshi, Yusaku Yamamoto.
 
-This work implements and evaluates the shifted MINRES, shifted COCG, and shifted BiCG methods for solving multiply shifted linear systems.
+The objective of this study is to propose the shifted MINRES method as a solver for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices, and to evaluate its performance.
 
 ---
 
@@ -17,7 +17,7 @@ This work implements and evaluates the shifted MINRES, shifted COCG, and shifted
 Tested with:
 - gcc (version 9.4.0) + Reference-BLAS/LAPACK (version 3.9.0-1build1)
 - gcc (version 8.5.0) + OpenBLAS (version 0.3.27)
-  - **Caution:** when using OpenBLAS prior to version 0.3.27 (see below)
+  - **Caution:** when using OpenBLAS prior to version 0.3.27 ([see below](https://github.com/ShunHidaka/shifted-MINRES-method/edit/main/article/README.md#known-issues))
 
 ## Directory Structure
 This repository consists of the following directories:
@@ -55,9 +55,44 @@ Run the following command to download and convert matrix data:
 make init
 ```
 This will download and convert the necessary matrix files into the `MATRIX/` directory.  
-If you would like to convert your own matrix file in Matrix Market format to CSR format, use the following command:
+
+### Test Matrices
+The following matrices from the [ELSES matrix library](http://www.elses.jp/matrix/) are used in our experiments:
+
+| Matrix Name      | Size    | NNZ        | Type              | Link                                     |
+|------------------|---------|------------|-------------------|------------------------------------------|
+| PPE3594          | 3594    | 79,968     | Real symmetric    | http://www.elses.jp/matrix/#PPE3594      |
+| CLIQ6912std      | 6912    | 208,544    | Real symmetric    | http://www.elses.jp/matrix/#CLIQ6912std  |
+| CLIQ55296std     | 55296   | 1,652,352  | Real symmetric    | http://www.elses.jp/matrix/#CLIQ55296std |
+| VCNT900h         | 900     | 683,892    | Complex Hermitian | http://www.elses.jp/matrix/#VCNT900h     |
+| VCNT10800h       | 10800   | 8,511,588  | Complex Hermitian | http://www.elses.jp/matrix/#VCNT10800h   |
+
+These matrices are provided in [Matrix Market format](https://math.nist.gov/MatrixMarket/), a widely used format for sparse matrices.  
+To enable **efficient matrix-vector multiplication**, the matrices are **converted to CSR (Compressed Sparse Row) format** using the Python script `converter.py`.
+The converted text-based `.csr` files are stored in the `MATRIX/` directory and are read directly by the solver programs.
+
+If, for any reason, the `make init` command does not work properly, you can manually download and convert the matrix files by running the following commands:
 ```bash
-python converter.py input_matrix.mtx output_matrix.csr
+# Make the MATRIX/ directory
+mkdir MATRIX
+# Download matrix archives from the ELSES matrix library
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_PPE3594_20160426.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_CLIQ6912std_20130109.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_CLIQ55296std_20130109.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_VCNT900h_20130501.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_VCNT10800h_20130501.tgz
+# Extract each archive
+tar -xzvf ./ELSES_MATRIX_PPE3594_20160426.tgz
+tar -xzvf ./ELSES_MATRIX_CLIQ6912std_20130109.tgz
+tar -xzvf ./ELSES_MATRIX_CLIQ55296std_20130109.tgz
+tar -xzvf ./ELSES_MATRIX_VCNT900h_20130501.tgz
+tar -xzvf ./ELSES_MATRIX_VCNT10800h_20130501.tgz
+# Convert Matrix Market format to CSR format using the provided Python script
+python converter.py ./ELSES_MATRIX_PPE3594_20160426/ELSES_MATRIX_PPE3594_20160426_A.mtx MATRIX/PPE3594_A.csr
+python converter.py ./ELSES_MATRIX_CLIQ6912std_20130109/ELSES_MATRIX_CLIQ6912std_A.mtx MATRIX/CLIQ6912std_A.csr
+python converter.py ./ELSES_MATRIX_CLIQ55296std_20130109/ELSES_MATRIX_CLIQ55296std_A.mtx MATRIX/CLIQ55296std_A.csr
+python converter.py ./ELSES_MATRIX_VCNT900h_20130501/ELSES_MATRIX_VCNT900h_A.mtx MATRIX/VCNT900h_A.csr
+python converter.py ./ELSES_MATRIX_VCNT10800h_20130501/ELSES_MATRIX_VCNT10800h_A.mtx MATRIX/VCNT10800h_A.csr
 ```
 
 ## Usage
