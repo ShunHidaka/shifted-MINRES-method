@@ -1,13 +1,26 @@
+# Example1: Performance Evaluation with Different Right-Hand Side Vectors
 
-使用する行列は PPE3594
+This directory contains programs and input files used in Section 3.1 of the paper  
+**"Performance of the shifted minimal residual method for multiply shifted linear systems..."**
 
-ここでは右辺ベクトルを変更した場合の性能評価をおこなう
-以下の3種類の場合をファイルに書き込む
-* all-one vector (引数が 0)
-* srand(1)
-* srand(2)
+We evaluate the performance of the shifted MINRES method by varying the right-hand side (RHS) vector while solving multiply shifted linear systems with the **PPE3594** matrix (real symmetric).
 
-Fault-case/
-    では 不適切な seed を選択した場合の結果を示している
-    Reference-BLASでは NaN が
-    OpenBLASでは NaN が出ずに収束しなかった
+---
+
+## Execution
+To run all tests in this example, execute:
+```bash
+make run
+```
+This will perform the shifted MINRES computation for three types of RHS vectors:
+
+| RHS Type          | Description                       | Input Argument |
+|-------------------|-----------------------------------|----------------|
+| All-one vector	| A vector where all entries are 1	| 0              |
+| Random vector 1	| `srand(1)` seeded randomness	    | 1              |
+| Random vector 2	| `srand(2)` seeded randomness	    | 2              |
+
+
+## Notes
+* All experiments in this directory use the matrix PPE3594, converted to CSR format.  
+* See the top-level `README` for details on matrix data preparation.
