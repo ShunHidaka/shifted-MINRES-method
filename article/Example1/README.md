@@ -1,7 +1,7 @@
 # Example1: Performance Evaluation with Different Right-Hand Side Vectors
 
 This directory contains programs and input files used in Section 3.1 of the paper  
-**"Performance of the shifted minimal residual method for multiply shifted linear systems..."**
+**"Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices"**
 
 We evaluate the performance of the shifted MINRES method by varying the right-hand side (RHS) vector while solving multiply shifted linear systems with the **PPE3594** matrix (real symmetric).
 
