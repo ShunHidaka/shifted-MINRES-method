@@ -17,7 +17,7 @@ The objective of this study is to propose the shifted MINRES method as a solver 
 Tested with:
 - gcc (version 9.4.0) + Reference-BLAS/LAPACK (version 3.9.0-1build1)
 - gcc (version 8.5.0) + OpenBLAS (version 0.3.27)
-  - **Caution:** when using OpenBLAS prior to version 0.3.27 ([see below](https://github.com/ShunHidaka/shifted-MINRES-method/edit/main/article/README.md#known-issues))
+  - **Caution:** when using OpenBLAS prior to version 0.3.27 ([see below](https://github.com/ShunHidaka/shifted-MINRES-method/tree/main/article#known-issues))
 
 ## Directory Structure
 This repository consists of the following directories:
