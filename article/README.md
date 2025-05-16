@@ -129,13 +129,74 @@ For more details about each experiment, please refer to the `README.md` inside e
 ## Citation
 If you use this code, please cite:
 ``` bibtex
-@article{
+@article{TEMPOTo enable **efficient matrix-vector multiplication**, the matrices are **converted to CSR (Compressed Sparse Row) format** using the Python script `converter.py`.
+The converted text-based `.csr` files are stored in the `MATRIX/` directory and are read directly by the solver programs.
+
+If, for any reason, the `make init` command does not work properly, you can manually download and convert the matrix files by running the following commands:
+```bash
+# Make the MATRIX/ directory
+mkdir MATRIX
+# Download matrix archives from the ELSES matrix library
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_PPE3594_20160426.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_CLIQ6912std_20130109.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_CLIQ55296std_20130109.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_VCNT900h_20130501.tgz
+wget http://www.damp.tottori-u.ac.jp/~hoshi/elses_matrix/ELSES_MATRIX_VCNT10800h_20130501.tgz
+# Extract each archive
+tar -xzvf ./ELSES_MATRIX_PPE3594_20160426.tgz
+tar -xzvf ./ELSES_MATRIX_CLIQ6912std_20130109.tgz
+tar -xzvf ./ELSES_MATRIX_CLIQ55296std_20130109.tgz
+tar -xzvf ./ELSES_MATRIX_VCNT900h_20130501.tgz
+tar -xzvf ./ELSES_MATRIX_VCNT10800h_20130501.tgz
+# Convert Matrix Market format to CSR format using the provided Python script
+python converter.py ./ELSES_MATRIX_PPE3594_20160426/ELSES_MATRIX_PPE3594_20160426_A.mtx MATRIX/PPE3594_A.csr
+python converter.py ./ELSES_MATRIX_CLIQ6912std_20130109/ELSES_MATRIX_CLIQ6912std_A.mtx MATRIX/CLIQ6912std_A.csr
+python converter.py ./ELSES_MATRIX_CLIQ55296std_20130109/ELSES_MATRIX_CLIQ55296std_A.mtx MATRIX/CLIQ55296std_A.csr
+python converter.py ./ELSES_MATRIX_VCNT900h_20130501/ELSES_MATRIX_VCNT900h_A.mtx MATRIX/VCNT900h_A.csr
+python converter.py ./ELSES_MATRIX_VCNT10800h_20130501/ELSES_MATRIX_VCNT10800h_A.mtx MATRIX/VCNT10800h_A.csr
+```
+
+## Usage
+After compilation, move into each example directory and run:
+```bash
+cd Example1
+make run
+```
+This will execute the experiment under the same conditions as described in the paper.  
+Repeat for `Example2/` and `Example3/` as needed.  
+For more details about each experiment, please refer to the `README.md` inside each directory.
+
+## Known Issues
+- **TRUE_RES always reported as 1.0 (sMINRES)**:
+  - Under certain OpenBLAS library versions, the TRUE_RES value in `sminres.out` may incorrectly appear as 1.0.
+  - **Cause**: A known bug in the `zrotg` function in OpenBLAS versions prior to 0.3.27.
+    - See: https://github.com/OpenMathLib/OpenBLAS/issues/4909
+  - **Workarounds**:
+    - Update OpenBLAS version 0.3.27 or later.
+    - Use an alternative BLAS implementation (e.g., Reference-BLAS/LAPACK or Intel MKL).
+    - Optionally, modify the source to use LAPACK's `zlartg` instead of `zrotg` for Givens rotation.  
+      Example modification:  
+      Replace:
+      ```c
+      zrotg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]));
+      ```
+      With:
+      ```c
+      double complex tmp_zlartg = beta[1];
+      zlartg_(&(r[m][2]), &cTMP, &(c[m][2]), &(s[m][2]), &tmp_zlartg);
+      r[m][2] = tmp_zlartg;
+      ```
+
+## Citation
+If you use this code, please cite:
+``` bibtex
+@article{TEMPORARY
   author  = {Shuntaro Hidaka, Shuhei Kudo, Takeo Hoshi, Yusaku Yamamoto},
   title   = {Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices},
-  doi     = {}, % to be updated
+  doi     = {https://doi.org/10.1016/j.cpc.2025.109679},
   journal = {Computer Physics Communications},
   volume  = {}, % to be updated
-  pages   = {}, % to be updated
-  year    = {} % to be updated
+  pages   = {109679}, % to be updated
+  year    = {2025} % to be updated
 }
 ```
