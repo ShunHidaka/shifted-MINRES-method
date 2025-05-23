@@ -132,10 +132,12 @@ If you use this code, please cite:
 @article{TEMPORARY
   author  = {Shuntaro Hidaka, Shuhei Kudo, Takeo Hoshi, Yusaku Yamamoto},
   title   = {Performance of the shifted minimal residual method for multiply shifted linear systems with real symmetric or complex Hermitian coefficient matrices},
-  doi     = {https://doi.org/10.1016/j.cpc.2025.109679},
   journal = {Computer Physics Communications},
-  volume  = {}, % to be updated
+  volume  = {314},
   pages   = {109679},
-  year    = {2025}
+  year    = {2025},
+  issn = {0010-4655},
+  doi = {https://doi.org/10.1016/j.cpc.2025.109679},
+  url = {https://www.sciencedirect.com/science/article/pii/S001046552500181X}
 }
 ```
